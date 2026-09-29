@@ -1,0 +1,30 @@
+# Codex CLI 第三方 API / 中转站 最小配置（通用模板）
+# Minimal Codex CLI config for any OpenAI-compatible gateway that serves /v1/responses.
+#
+# 放在「用户级」配置文件里（项目里的 .codex/config.toml 会忽略 model_provider / model_providers）：
+#   macOS / Linux : ~/.codex/config.toml
+#   Windows       : %USERPROFILE%\.codex\config.toml
+#   设置了 CODEX_HOME 时 : $CODEX_HOME/config.toml
+#
+# 使用步骤：
+#   1. 把 your-gateway 换成你自己的 provider ID（不能用 openai、ollama、lmstudio）
+#   2. base_url 写到 /v1 为止，Codex 会自己拼上 /responses
+#   3. key 只放在环境变量里：export YOUR_GATEWAY_API_KEY=...（不要写进本文件）
+#   4. 自检：bash scripts/codex-doctor.sh（Windows：scripts\codex-doctor.ps1）
+#
+# 字段说明和官方出处见 README.md「逐字段解释」，核对日期 2026-09-29。
+
+# ---- 顶层键：必须写在第一个 [表] 之前 ----
+model = "your-model-id"          # 填 GET <base_url>/models 返回的 ID
+model_provider = "your-gateway"  # 对应下面的 [model_providers.your-gateway]
+# model_reasoning_effort = "medium"   # 可选；能用哪些档位取决于模型和网关
+
+# ---- provider 定义 ----
+[model_providers.your-gateway]
+name = "Your Gateway"                             # 显示名，不能为空
+base_url = "https://your-gateway.example.com/v1"  # 到 /v1 为止，不要写 /responses
+env_key = "YOUR_GATEWAY_API_KEY"                  # 环境变量的「名字」，不是 key 本身
+wire_api = "responses"                            # 唯一支持的取值，省略时默认也是它
+# stream_idle_timeout_ms = 300000                 # SSE 空闲超时，默认 300000（5 分钟）
+# stream_max_retries = 5                          # 流中断后的重连次数，默认 5
+# request_max_retries = 4                         # HTTP 请求失败的重试次数，默认 4

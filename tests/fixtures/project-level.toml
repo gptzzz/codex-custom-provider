@@ -1,0 +1,11 @@
+# Fixture: copied to <project>/.codex/config.toml by the tests.
+# Codex ignores model_provider / model_providers in a project-local config.
+# Expected: check 10 WARN.
+model = "test-model"
+model_provider = "your-gateway"
+
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1"
+env_key = "DOCTOR_TEST_API_KEY"
+wire_api = "responses"

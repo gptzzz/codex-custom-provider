@@ -1,0 +1,34 @@
+# Codex CLI -> GPTZZZ（OpenAI 兼容 API 网关）
+# Codex CLI custom provider for GPTZZZ, an OpenAI-compatible gateway.
+#
+# 维护者 2026-09-29 用真实 key 实测过的接口：GET /v1/models、POST /v1/responses、
+# chat completions（含 SSE 流式、工具调用、JSON 模式）；错误 key 返回 401。
+# 本文件还通过了 scripts/codex-doctor.sh 的离线检查（见 tests/test_doctor.py）。
+# 你自己的 key 请再跑一遍：bash scripts/codex-doctor.sh --live
+#
+# 两种用法：
+#   A. 作为主配置：放进 ~/.codex/config.toml。已有配置时，把 model / model_provider
+#      两行放到文件里第一个 [表] 之前，再把 [model_providers.gptzzz] 整段贴到后面。
+#   B. 作为 profile：复制为 ~/.codex/gptzzz.config.toml，然后 codex --profile gptzzz
+#
+# key 只放在环境变量里（不要写进本文件）：
+#   read -rs GPTZZZ_API_KEY && export GPTZZZ_API_KEY
+#   bash scripts/codex-doctor.sh --live            # 用法 B 时加 --profile gptzzz
+#   codex exec "Reply with the single word: ready"
+
+model = "gpt-5.6"
+model_provider = "gptzzz"
+# 2026-09-29 GET /v1/models 返回的对话模型包括：gpt-6、gpt-6-sol、gpt-6-luna、gpt-6-astra、
+# gpt-5.6、gpt-5.6-sol、gpt-5.6-terra、gpt-5.6-luna、gpt-5.5、gpt-5.4、gpt-5.4-mini。
+# gpt-image-* 是图像模型，不要填在这里。不同 key 分组看到的列表可能不同，以 /v1/models 为准。
+#
+# model_reasoning_effort = "medium"
+# 推理档位（2026-09-29 实测）：gpt-5.6、gpt-5.6-sol、gpt-5.6-terra 接受 none 到 max；
+# gpt-6-astra 接受 low 到 max，传 none 会被拒绝；都不接受 minimal。其余模型未逐档测试。
+
+[model_providers.gptzzz]
+name = "GPTZZZ"
+base_url = "https://gptzzz.ai/v1"   # 到 /v1 为止，Codex 自己拼 /responses
+env_key = "GPTZZZ_API_KEY"          # 环境变量名，不是 key 本身
+wire_api = "responses"              # GPTZZZ 提供 POST /v1/responses
+# stream_idle_timeout_ms = 300000   # 默认值；长时间推理后断流再调大

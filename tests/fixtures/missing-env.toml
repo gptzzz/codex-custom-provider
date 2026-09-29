@@ -1,0 +1,9 @@
+# Fixture: env_key names a variable that is not set. Expected: check 9 FAIL.
+model = "test-model"
+model_provider = "your-gateway"
+
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1"
+env_key = "DOCTOR_TEST_UNSET_KEY"
+wire_api = "responses"

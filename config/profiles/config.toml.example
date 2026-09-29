@@ -1,0 +1,28 @@
+# 多个 provider 并存：基础配置（~/.codex/config.toml）
+# Several providers side by side. Base user config: ~/.codex/config.toml
+#
+# 思路：所有 provider 都定义在基础配置里，默认用 gateway-a；
+# 切换时用 profile 文件（~/.codex/<名字>.config.toml）只改 model_provider 和 model。
+#
+#   codex                                # 默认：gateway-a
+#   codex --profile gateway-b            # 读取 ~/.codex/gateway-b.config.toml
+#   codex --profile chatgpt              # 回到 ChatGPT 登录（内置 openai provider）
+#   codex -c model_provider='"gateway-b"' -m other-model-id   # 只改这一次
+#
+# 从 Codex 0.134.0 起，--profile 不再读取 [profiles.<名字>] 表，顶层的
+# profile = "<名字>" 也不再支持，见官方 Advanced Configuration「Profiles」一节。
+
+model = "gateway-a-model-id"
+model_provider = "gateway-a"
+
+[model_providers.gateway-a]
+name = "Gateway A"
+base_url = "https://gateway-a.example.com/v1"
+env_key = "GATEWAY_A_API_KEY"
+wire_api = "responses"
+
+[model_providers.gateway-b]
+name = "Gateway B"
+base_url = "https://gateway-b.example.com/v1"
+env_key = "GATEWAY_B_API_KEY"
+wire_api = "responses"

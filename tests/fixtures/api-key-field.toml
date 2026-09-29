@@ -1,0 +1,10 @@
+# Fixture: api_key inside the provider table. Codex has no such field and
+# ignores it. Expected: check 6 WARN, check 9 FAIL; the value is never printed.
+model = "test-model"
+model_provider = "your-gateway"
+
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1"
+api_key = "sk-not-a-real-key-doctor-fixture-9c1e"
+wire_api = "responses"

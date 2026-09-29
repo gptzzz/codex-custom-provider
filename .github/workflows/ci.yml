@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint (shellcheck, PSScriptAnalyzer, TOML)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: shellcheck
+        run: |
+          shellcheck --version
+          shellcheck --severity=warning scripts/codex-doctor.sh
+          bash -n scripts/codex-doctor.sh
+
+      - name: PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path scripts/codex-doctor.ps1 -Severity Warning, Error -ExcludeRule PSAvoidUsingWriteHost
+          $results | Format-Table -AutoSize -Wrap
+          if ($results) { exit 1 }
+          # The script must parse in Windows PowerShell 5.1 as well (ASCII only, no PS7-only syntax).
+          $bytes = [System.IO.File]::ReadAllBytes('scripts/codex-doctor.ps1')
+          if ($bytes | Where-Object { $_ -gt 127 }) { Write-Error 'codex-doctor.ps1 must be ASCII only'; exit 1 }
+
+      - name: Every TOML example parses with tomllib
+        run: |
+          python - <<'EOF'
+          import pathlib, sys, tomllib
+          files = sorted(p for p in pathlib.Path(".").rglob("*")
+                         if p.is_file() and ".git" not in p.parts
+                         and (p.suffix == ".toml" or p.name.endswith(".toml.example"))
+                         and not p.name.startswith("broken-"))
+          bad = 0
+          for p in files:
+              try:
+                  tomllib.loads(p.read_text(encoding="utf-8"))
+                  print("ok   ", p)
+              except Exception as exc:
+                  bad += 1
+                  print("FAIL ", p, exc)
+          print(len(files), "files,", bad, "failed")
+          sys.exit(bad)
+          EOF
+
+      - name: Python syntax
+        run: python -m py_compile cost/calculator.py cost/test_calculator.py tests/test_doctor.py tests/mock_gateway.py
+
+  test:
+    name: Tests (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu, bash 5, mawk, tomllib + fallback, pwsh
+            os: ubuntu-24.04
+            python: "3.12"
+          - name: ubuntu, Python 3.10 (fallback parser only)
+            os: ubuntu-24.04
+            python: "3.10"
+          - name: macOS, /bin/bash 3.2, BSD awk, pwsh
+            os: macos-latest
+            python: "3.12"
+            bash: /bin/bash
+          - name: Windows, PowerShell 7 + Windows PowerShell 5.1
+            os: windows-latest
+            python: "3.12"
+            engines: pwsh,powershell
+    env:
+      DOCTOR_TEST_BASH: ${{ matrix.bash }}
+      DOCTOR_TEST_ENGINES: ${{ matrix.engines }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Doctor fixture tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Cost calculator tests
+        run: python -m unittest discover -s cost -v
+
+      - name: Cost calculator sample run
+        run: python cost/calculator.py cost/sample_tasks.csv

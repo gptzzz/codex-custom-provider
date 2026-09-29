@@ -1,0 +1,9 @@
+# Fixture: base_url already ends with /responses. Expected: check 7 FAIL.
+model = "test-model"
+model_provider = "your-gateway"
+
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1/responses/"
+env_key = "DOCTOR_TEST_API_KEY"
+wire_api = "responses"

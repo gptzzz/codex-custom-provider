@@ -1,0 +1,4 @@
+# Fixture: invalid TOML (unterminated string). Expected with the Python parser:
+# check 3 FAIL. Excluded from the "all examples parse" CI step.
+model = "test-model
+model_provider = "your-gateway"

@@ -1,0 +1,12 @@
+# Profile 文件：复制为 ~/.codex/chatgpt.config.toml，然后 codex --profile chatgpt
+# Switch back to the built-in `openai` provider (ChatGPT sign-in or an OpenAI API key).
+#
+# 基础配置默认走第三方网关时，用这个 profile 临时切回 Codex 内置的 openai provider，
+# 使用 codex login 保存的登录（ChatGPT 账号或 OpenAI API key）。
+#
+# model 必须一起改：profile 文件是叠加在基础配置之上的，不写的话会沿用基础配置里
+# 网关的模型 ID，OpenAI 那边不认。gpt-6-sol 是官方 Configuration Reference 里的示例；
+# 你的账户能用哪些模型，以 Codex 里 /model 列出的为准。
+
+model_provider = "openai"
+model = "gpt-6-sol"

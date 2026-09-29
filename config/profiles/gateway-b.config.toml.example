@@ -1,0 +1,9 @@
+# Profile 文件：复制为 ~/.codex/gateway-b.config.toml，然后 codex --profile gateway-b
+# Profile file: copy to ~/.codex/gateway-b.config.toml, then run `codex --profile gateway-b`.
+#
+# profile 文件叠加在 ~/.codex/config.toml 之上，只需要写和基础配置不同的键。
+# 键直接写在顶层，不要再包一层 [profiles.gateway-b]。
+
+model = "gateway-b-model-id"
+model_provider = "gateway-b"
+# model_reasoning_effort = "high"

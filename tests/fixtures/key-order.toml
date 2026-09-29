@@ -1,0 +1,11 @@
+# Fixture: top-level keys written after a table. In TOML they now belong to
+# [model_providers.your-gateway], so Codex falls back to the built-in provider.
+# Expected: check 4 FAIL and check 5 FAIL.
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1"
+env_key = "DOCTOR_TEST_API_KEY"
+wire_api = "responses"
+
+model = "test-model"
+model_provider = "your-gateway"

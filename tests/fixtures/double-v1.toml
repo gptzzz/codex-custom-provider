@@ -1,0 +1,10 @@
+# Fixture: /v1 written twice. Requests would go to .../v1/v1/responses.
+# Expected: check 7 FAIL.
+model = "test-model"
+model_provider = "your-gateway"
+
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1/v1"
+env_key = "DOCTOR_TEST_API_KEY"
+wire_api = "responses"

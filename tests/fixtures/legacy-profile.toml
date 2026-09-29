@@ -1,0 +1,14 @@
+# Fixture: pre-0.134 profile syntax. `profile = ...` is a hard error in current
+# Codex; [profiles.*] tables are ignored. Expected: check 10 FAIL.
+model = "test-model"
+model_provider = "your-gateway"
+profile = "work"
+
+[model_providers.your-gateway]
+name = "Your Gateway"
+base_url = "https://gateway.example.com/v1"
+env_key = "DOCTOR_TEST_API_KEY"
+wire_api = "responses"
+
+[profiles.work]
+model = "other-model"
